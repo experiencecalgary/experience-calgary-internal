@@ -1,0 +1,149 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function activeCommandRep() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userType == 'rep'
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.active != false;
+    }
+
+    function isCommandCollection(collection) {
+      return collection in [
+        'commandPeople',
+        'commandOrganizations',
+        'commandActions',
+        'commandConnections',
+        'commandRevivalImports',
+        'commandRevivalCampaigns',
+        'commandRevivalOpportunities',
+        'commandAgreementTemplates',
+        'commandAgreements',
+        'commandAgreementSigningTokens',
+        'commandEmailThreads',
+        'emailMessages',
+        'sendCommandEmail',
+        'commandNotifications',
+        'commandEmailIdentityIndex',
+        'commandEmailInboundReceipts',
+        'commandEmailInboundUnmatched',
+        'commandEmailRouting',
+        'commandEmailAddresses',
+        'commandEmailAliases',
+        'commandMaintenance',
+        'customerNotifications',
+        'notificationCampaigns',
+        'notificationCampaignRecipients',
+        'notificationRuntime',
+        'notificationDeliveries',
+        'pendingChatNotificationDeliveries'
+        ,'saraSettings'
+        ,'saraCandidates'
+        ,'saraMessages'
+        ,'saraInterviews'
+        ,'saraInterviewSlots'
+        ,'saraWebhookReceipts'
+      ];
+    }
+
+    function commandUser() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isSaraCollection(collection) {
+      return collection in [
+        'saraSettings',
+        'saraCandidates',
+        'saraMessages',
+        'saraInterviews',
+        'saraInterviewSlots',
+        'saraWebhookReceipts'
+      ];
+    }
+
+    function isPlatformAdmin() {
+      return activeCommandRep()
+        && (
+          commandUser().role == 'platform_admin'
+          || commandUser().roleId == 'platform_admin'
+          || commandUser().userType == 'platform_admin'
+        );
+    }
+
+    function isRevivalCollection(collection) {
+      return collection in [
+        'commandRevivalCampaigns',
+        'commandRevivalOpportunities'
+      ];
+    }
+
+    function canReadRevivalDocument() {
+      return isPlatformAdmin()
+        || ('ownerUid' in resource.data && resource.data.ownerUid == request.auth.uid)
+        || ('assignedToUid' in resource.data && resource.data.assignedToUid == request.auth.uid)
+        || ('viewerUids' in resource.data && request.auth.uid in resource.data.viewerUids)
+        || (
+          'teamRepIds' in resource.data
+          && 'repId' in commandUser()
+          && commandUser().repId in resource.data.teamRepIds
+        );
+    }
+
+    function isClientReadableCommandCollection(collection) {
+      return collection in [
+        'commandPeople',
+        'commandOrganizations',
+        'commandActions',
+        'commandConnections',
+        'commandRevivalCampaigns',
+        'commandRevivalOpportunities',
+        'commandAgreementTemplates',
+        'commandAgreements',
+        'commandEmailThreads',
+        'emailMessages'
+        ,'saraSettings'
+        ,'saraCandidates'
+        ,'saraMessages'
+        ,'saraInterviews'
+      ];
+    }
+
+    function canReadAgreementTemplate(collection) {
+      return collection != 'commandAgreementTemplates'
+        || isPlatformAdmin()
+        || ('status' in resource.data && resource.data.status == 'active');
+    }
+
+    // Active Command reps may read Agreement history so it can appear on the
+    // shared Person/Organization workspaces. Signing tokens remain backend-only.
+    // All Command mutations continue to go through protected Cloud Functions.
+    match /{collection}/{document=**} {
+      allow read: if isCommandCollection(collection)
+        && isClientReadableCommandCollection(collection)
+        && activeCommandRep()
+        && (!isSaraCollection(collection) || isPlatformAdmin())
+        && canReadAgreementTemplate(collection)
+        && (!isRevivalCollection(collection) || canReadRevivalDocument());
+      allow write: if false;
+    }
+
+    match /users/{uid}/commandNotificationDevices/{deviceId} {
+      allow read, write: if false;
+    }
+
+    match /{collection}/{document} {
+      allow read: if !isCommandCollection(collection);
+      allow write: if false;
+    }
+
+    match /{collection}/{document}/{subcollection}/{nested=**} {
+      allow read: if !isCommandCollection(collection)
+        && !(collection == 'users' && subcollection == 'commandNotificationDevices');
+      allow write: if false;
+    }
+  }
+}
