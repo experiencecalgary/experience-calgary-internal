@@ -1,0 +1,13 @@
+'use strict';
+const admin = require('firebase-admin');
+const { onCall } = require('firebase-functions/v2/https');
+const { onSchedule } = require('firebase-functions/v2/scheduler');
+const service = require('../../lib/command/commandStaleLeads');
+const options = { region: 'us-central1', cors: true, timeoutSeconds: 300, memory: '512MiB' };
+const callable = fn => onCall(options, async request => fn(await service.context(request)));
+exports.previewCommandStaleLeads = callable(service.preview);
+exports.listCommandStaleLeads = callable(service.list);
+exports.manageCommandStaleLeads = callable(service.manage);
+exports.getCommandStaleLeadSettings = callable(ctx => service.settings(ctx));
+exports.setCommandStaleLeadSettings = callable(ctx => service.settings(ctx, true));
+exports.processCommandStaleLeads = onSchedule({ region: 'us-central1', schedule: '0 3 * * *', timeZone: 'America/Edmonton', timeoutSeconds: 540, memory: '512MiB' }, () => service.scheduled(admin.firestore()));
