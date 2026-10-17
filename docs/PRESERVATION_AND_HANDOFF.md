@@ -6,7 +6,7 @@ Date: 2026-10-16. This repository is an **archive**, not a deployed application.
 Preserve Experience Calgary Command Center, sales rep, ExMail, lead management, agreements, scheduling, reporting and Sara recruiting functionality for a future standalone internal application. No Next.js conversion is underway.
 
 ## Backend archive
-`archive/backend/` contains source snapshots from `experiencecalgary/experience-calgary-backend`, including internal command and email libraries/routes, Sara modules, rep operations, recruiting, associated tests, selected documents, function entry points and Firebase configuration references. The archive was completed and verified on 2026-10-17 against all 208 function source, script, and test files removed by the backend cleanup. This is a **reference archive**, not an independently deployable Firebase project.
+`archive/backend/` contains source snapshots from `experiencecalgary/experience-calgary-backend`, including internal command and email libraries/routes, Sara modules, rep operations, recruiting, associated tests, documents, function entry points and Firebase configuration references. The archive was completed and verified on 2026-10-17 against all 208 function source, script, and test files and all 29 documentation files removed by the backend cleanup. This is a **reference archive**, not an independently deployable Firebase project.
 
 **Source repository:** https://github.com/experiencecalgary/experience-calgary-backend
 
