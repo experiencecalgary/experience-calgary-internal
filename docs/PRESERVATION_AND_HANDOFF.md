@@ -6,7 +6,7 @@ Date: 2026-10-16. This repository is an **archive**, not a deployed application.
 Preserve Experience Calgary Command Center, sales rep, ExMail, lead management, agreements, scheduling, reporting and Sara recruiting functionality for a future standalone internal application. No Next.js conversion is underway.
 
 ## Backend archive
-`archive/backend/` contains source snapshots from `experiencecalgary/experience-calgary-backend`, including internal command and email libraries/routes, Sara modules, associated tests, selected documents, function entry points and Firebase configuration references. The 189 files selected by the initial internal filename/path inventory are present. Other supporting files were also copied. This is a **reference archive**, not an independently deployable Firebase project.
+`archive/backend/` contains source snapshots from `experiencecalgary/experience-calgary-backend`, including internal command and email libraries/routes, Sara modules, rep operations, recruiting, associated tests, selected documents, function entry points and Firebase configuration references. The archive was completed and verified on 2026-10-17 against all 208 function source, script, and test files removed by the backend cleanup. This is a **reference archive**, not an independently deployable Firebase project.
 
 **Source repository:** https://github.com/experiencecalgary/experience-calgary-backend
 
@@ -14,7 +14,7 @@ Preserve Experience Calgary Command Center, sales rep, ExMail, lead management, 
 The separate FlutterFlow internal-source ZIP was extracted from the user's full application export. It contains 249 source files plus its manifest/README. **It has not yet been uploaded to this GitHub repository.** Preserve the ZIP until the upload is verified. Do not assume this repository contains the complete internal FlutterFlow UI.
 
 ## Production safety
-- No source files were deleted from the original backend repository.
+- The cleanup remains isolated on a review branch; no source deletion has been merged into the original backend default branch.
 - No Firebase functions were deleted, redeployed, or moved to a new deployment owner.
 - The live FlutterFlow app was not modified.
 - Existing functions remain owned by the original production repository.
